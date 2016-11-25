@@ -24,7 +24,7 @@ class XmlParser:
         self.stopwords = self.get_stopwords(self)
         self.special_char = "\'~*+§/\[](){}<>@=°„‚’\”&^|%_#-:;.!?,"
         self.xml_article_path = os.path.abspath('..') + '\\resources\\wiki.xml'
-        self.articles_json_path = os.path.abspath('..') + '\\resources\\articles.json'
+        # self.articles_json_path = os.path.abspath('..') + '\\resources\\articles.json'
         self.mapping_json_path = os.path.abspath('..') + '\\resources\\mapping.json'
 
     @staticmethod
@@ -34,9 +34,9 @@ class XmlParser:
             json_list += '\"'
             json_list += word
             json_list += '\",'
-        final = json_list[:-1]
-        final += ']'
-        return final
+        json_list = json_list[:-1]
+        json_list += ']'
+        return json_list
 
     @staticmethod
     def extract_title(line):
@@ -73,37 +73,54 @@ class XmlParser:
             no_of_lines = 11779569
             i = 1
             no_article = 1
-            with open(self.articles_json_path, 'w') as articles_json:
-                with open(self.mapping_json_path, 'w') as mapping_json:
-                    articles_json.write('{')
-                    mapping_json.write('{')
-                    for line in tqdm(f, desc='Parsing XML File', total=no_of_lines):
-                        if no_article>=6000:
-                            break
-                        elif 'document' in line or line == '\n' or line == '':
-                            pass
-                        elif '</doc>' not in line:
-                            if '<doc' in line:
-                                element['title'] = self.extract_title(line)
-                            else:
-                                element['text'] += line
-                        elif '</doc>' in line:
-                            no_article+=1
-                            articles_json.write('\"'+str(i)+'\"')
-                            articles_json.write(':')
-                            articles_json.write(self.list_to_json_list(self.filter_article(element.get('text'))))
-                            if not(no_article==6000):
-                                articles_json.write(',')
-                            mapping_json.write('\"'+str(i)+'\"')
-                            mapping_json.write(':')
-                            mapping_json.write('\"'+element.get('title')+'\"')
-                            if not (no_article==6000):
-                                mapping_json.write(',')
-                            i += 1
-                            element = {'text': '', 'title': ''}
-                    mapping_json.write('}')
-                articles_json.write('}')
+            mapping_json = open(self.mapping_json_path, "w")
+            art_json_path=os.path.abspath('..') + '\\resources\\articles_1.json'
+            articles_json = open(art_json_path,"w")
+            articles_json.write('{')
+            mapping_json.write('{')
+            for line in tqdm(f, desc='Parsing XML File', total=no_of_lines):
+
+                if no_article>6030:
+                    break
+                elif 'document' in line or line == '\n' or line == '':
+                    pass
+                elif '</doc>' not in line:
+                    if '<doc' in line:
+                        element['title'] = self.extract_title(line)
+                    else:
+                        element['text'] += line
+                elif '</doc>' in line:
+                    if no_article % 201 == 0 and not no_article==6030:
+                        articles_json.write('}')
+                        articles_json.close()
+                        art_json_path = os.path.abspath('..') + '\\resources\\articles_{}.json'.format(no_article)
+                        articles_json = open(art_json_path, "w")
+                        articles_json.write('{')
+                    words_list = self.filter_article(element.get('text'))
+                    if(len(words_list)>15):
+                        articles_json.write('\"' + str(i) + '\"')
+                        articles_json.write(':')
+                        articles_json.write(self.list_to_json_list(words_list))
+                        if not ((no_article + 1) % 201 == 0):
+                            articles_json.write(',')
+                        mapping_json.write('\"' + str(i) + '\"')
+                        mapping_json.write(':')
+                        mapping_json.write('\"' + element.get('title') + '\"')
+                        if not (no_article == 6030):
+                            mapping_json.write(',')
+                        i += 1
+                        element = {'text': '', 'title': ''}
+                        no_article += 1
+                    if no_article==6030:
+                        articles_json.write("}")
+            mapping_json.write('}')
+            articles_json.close()
+            mapping_json.close()
 if __name__ == "__main__":
     parser = XmlParser()
-    if not(os.path.isfile(parser.articles_json_path) and os.path.isfile(parser.mapping_json_path)):
-        parser.parse_xml(parser.xml_article_path)
+ #   if not(os.path.isfile(parser.articles_json_path) and os.path.isfile(parser.mapping_json_path)):
+    parser.parse_xml(parser.xml_article_path)
+
+
+
+
