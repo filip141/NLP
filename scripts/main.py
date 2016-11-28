@@ -20,12 +20,12 @@ class XmlParser:
             return words_list.split(", ")
 
     def __init__(self):
-        self.stopwords_path = os.path.abspath('..') + '\\resources\\stopwords.txt'
+        self.stopwords_path = os.path.abspath('..') + '\\data\\stopwords.txt'
         self.stopwords = self.get_stopwords(self)
         self.special_char = "\'~*+§/\[](){}<>@=°„‚’\”&^|%_#-:;.!?,"
-        self.xml_article_path = os.path.abspath('..') + '\\resources\\wiki.xml'
-        # self.articles_json_path = os.path.abspath('..') + '\\resources\\articles.json'
-        self.mapping_json_path = os.path.abspath('..') + '\\resources\\mapping.json'
+        self.xml_article_path = os.path.abspath('..') + '\\data\\wiki.xml'
+        # self.articles_json_path = os.path.abspath('..') + '\\data\\articles.json'
+        self.mapping_json_path = os.path.abspath('..') + '\\data\\mapping.json'
 
     @staticmethod
     def list_to_json_list(source_list):
@@ -74,7 +74,7 @@ class XmlParser:
             i = 1
             no_article = 1
             mapping_json = open(self.mapping_json_path, "w")
-            art_json_path=os.path.abspath('..') + '\\resources\\articles_1.json'
+            art_json_path=os.path.abspath('..') + '\\data\\articles_1.json'
             articles_json = open(art_json_path,"w")
             articles_json.write('{')
             mapping_json.write('{')
@@ -93,7 +93,7 @@ class XmlParser:
                     if no_article % 201 == 0 and not no_article==6030:
                         articles_json.write('}')
                         articles_json.close()
-                        art_json_path = os.path.abspath('..') + '\\resources\\articles_{}.json'.format(no_article)
+                        art_json_path = os.path.abspath('..') + '\\data\\articles_{}.json'.format(no_article)
                         articles_json = open(art_json_path, "w")
                         articles_json.write('{')
                     words_list = self.filter_article(element.get('text'))
