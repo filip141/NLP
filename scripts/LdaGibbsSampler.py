@@ -30,9 +30,9 @@ class LDAGibbsSampler(object):
         self.idx2words = []
         self.topics_per_doc = {}
         self.n_topic = n_topics
-        self.docs = self.words2idx(self.docs)
+        self.docs = self.words2idx(self.docs, append=False)
 
-    def words2idx(self, docs):
+    def words2idx(self, docs, append=True):
         # If mapping not defined
         if not self.idx2words:
             word_list = []
@@ -46,16 +46,20 @@ class LDAGibbsSampler(object):
             self.n_words = len(self.idx2words)
 
         # change words to idx
-        for doc_id, doc in docs.items():
+        for doc_id, doc in docs.iteritems():
+            print "Doc Converted to indexes: {}".format(doc_id)
             new_word_list = []
             for word in doc:
-                if word in self.w2idx.keys():
-                    translated_item = self.w2idx[word]
+                if append:
+                    if word in self.w2idx.keys():
+                        translated_item = self.w2idx[word]
+                    else:
+                        self.w2idx[word] = self.n_words
+                        self.idx2words[self.n_words] = word
+                        translated_item = self.n_words
+                        self.n_words += 1
                 else:
-                    self.w2idx[word] = self.n_words
-                    self.idx2words[self.n_words] = word
-                    translated_item = self.n_words
-                    self.n_words += 1
+                    translated_item = self.w2idx[word]
                 new_word_list.append(translated_item)
                 docs[doc_id] = new_word_list
         return docs
