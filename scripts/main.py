@@ -2,13 +2,16 @@
 import sys
 from nltk.tokenize import word_tokenize
 from tqdm import *
-import morfeusz
+import morfeusz2
 import os
 import codecs
 import json
+import sys
 
 reload(sys)
 sys.setdefaultencoding('utf8')
+if sys.platform == 'linux2':
+    morfeusz = morfeusz2.Morfeusz()
 
 
 class XmlParser:
@@ -20,12 +23,12 @@ class XmlParser:
             return words_list.split(", ")
 
     def __init__(self):
-        self.stopwords_path = os.path.abspath('..') + '\\data\\stopwords.txt'
+        self.stopwords_path = os.path.join(os.path.abspath('..'), "data", "stopwords.txt")
         self.stopwords = self.get_stopwords(self)
         self.special_char = "\'~*+§/\[](){}<>@=°„‚’\”&^|%_#-:;.!?,"
-        self.xml_article_path = os.path.abspath('..') + '\\data\\wiki.xml'
+        self.xml_article_path = os.path.join(os.path.abspath('..'), "data", "wiki.xml")
         # self.articles_json_path = os.path.abspath('..') + '\\data\\articles.json'
-        self.mapping_json_path = os.path.abspath('..') + '\\data\\mapping.json'
+        self.mapping_json_path = os.path.join(os.path.abspath('..'), "data", "mapping.json")
 
     @staticmethod
     def list_to_json_list(source_list):
@@ -45,8 +48,12 @@ class XmlParser:
 
     @staticmethod
     def stemming(word):
-        sword = morfeusz.analyse(word, expand_tags=False)
-        return sword[0][0][1].lower()
+        if sys.platform == "linux2":
+            sword = morfeusz.analyse(word)
+            return sword[0][2][1].split(":")[0]
+        else:
+            sword = morfeusz.analyse(word, expand_tags=False)
+            return sword[0][0][1].lower()
 
     @staticmethod
     def num_there(s):

@@ -142,7 +142,7 @@ class LDAGibbsSampler(object):
     def predict(self, document, num_iteration=50):
         doc_dict = {1: document}
         self.min_key = 1
-        self.words2idx(doc_dict)
+        self.words2idx(doc_dict, append=True)
         self.initialize_matrixes(doc_dict)
         self.gibbs_sampling(doc_dict, num_iteration)
 
