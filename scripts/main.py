@@ -63,12 +63,13 @@ class XmlParser:
     def contains_special_chars(self,s):
         return any(i in self.special_char for i in s)
 
-    def filter_article(self, article):
+    def filter_article(self, article, stemming=True):
         article_tokens = word_tokenize(article)
         filtered_article = []
         for w in article_tokens:
             if w not in self.stopwords and not self.contains_special_chars(w) and not self.num_there(w):
-                w=self.stemming(w).split(':', 1)[0]
+                if stemming:
+                    w=self.stemming(w).split(':', 1)[0]
                 if not len(w) < 3:
                     filtered_article.append(w)
 

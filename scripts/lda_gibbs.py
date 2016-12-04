@@ -1,37 +1,26 @@
 # coding=utf-8
-import os
-import gensim
-import numpy as np
 from main import XmlParser
+from LdaGibbsSampler import LDAGibbsSampler
+
+N_TOPICS = 10
 
 
-def get_topics_doc(question, data_path, n_words=40, n_topics=10):
+def gen_documents(corpus_docs):
+    corpus_docs = dict([(int(x), y) for x, y in corpus_docs.iteritems()])
+    return corpus_docs
+
+
+def predict_doc(question):
     question = question.decode('utf-8')
     xml = XmlParser()
-    load_dict_path = os.path.join(data_path, "dictionary.dict")
-    load_model_path = os.path.join(data_path, "model.lda")
+    lda = LDAGibbsSampler()
+    lda.load("../data/gibs_model.npz")
     tokenized_list = xml.filter_article(question)
-    dictionary = gensim.corpora.Dictionary.load(load_dict_path)
-    lda = gensim.models.ldamodel.LdaModel.load(load_model_path)
-    ques_vec = dictionary.doc2bow(tokenized_list)
-    topic_vec = np.array(lda[ques_vec])
-
-    idx = np.argsort(-topic_vec[:, 1])
-    word_count_array = topic_vec[idx]
-    final = []
-    for topic in word_count_array:
-        final.append(lda.show_topic(topic[0], n_words))
-    # find in word keywords
-    act_final = []
-    for topic in final:
-        act_keyword = []
-        for f_word, proba in topic:
-            if f_word in tokenized_list:
-                act_keyword.append(f_word)
-        act_final.append(act_keyword)
-    return act_final[:n_topics], final[:n_topics]
+    doc_topic_words = lda.predict(tokenized_list)
+    return doc_topic_words
 
 if __name__ == '__main__':
+    print "Predicting new document"
     new_doc = 'Termin chemia organiczna oznaczał pierwotnie dział chemii zajmujący się systematyką oraz ' \
               'badaniem własności związków organicznych, które, jak wierzono, nie mogą być otrzymane na drodze' \
               ' syntezy laboratoryjnej, a jedynie przez żywe organizmy.Później okazało się jednak, że niemal ' \
@@ -48,10 +37,12 @@ if __name__ == '__main__':
               ' nieorganiczna. Z powodu ogromnej liczby możliwych do otrzymania związków zawierających złożony ' \
               'szkielet węglowy mogą one posiadać bardzo różnorodne właściwości oraz zastosowania. Przykładowo' \
               ' praktycznie wszystkie stosowane obecnie barwniki, tworzywa sztuczne oraz leki to związki organiczne.'
-    final = get_topics_doc(new_doc, "../data/", n_topics=3)
+
+    local_all_topics, words = predict_doc(new_doc)
     print "Topic words"
-    for idx, topic in enumerate(final[1]):
-        print "{}: {}\n".format(idx, topic)
+    for key, value in enumerate(words):
+        print "{}: {}\n".format(key, value)
+
     print "Document keywords"
-    for idx, topic in enumerate(final[0]):
-        print "{}: {}\n".format(idx, topic)
+    for value in local_all_topics:
+        print value

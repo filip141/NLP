@@ -1,0 +1,53 @@
+.text_container {
+    position: relative;
+    top: 40px;
+}
+
+textarea.form-control {
+    overflow-y: scroll;
+    height: 300px;
+}
+
+.button_group {
+    position: relative;
+    top: 20px;
+}
+
+.down_box{
+    position: relative;
+    top: 70px;
+}
+
+.locked_box{
+    position: relative;
+    top: 30px;
+}
+
+#locked_id {
+    float: left;
+    border: 2px solid gray;
+    border-radius: 5px;
+    overflow: auto;
+    height: 300px;
+    width: 100%;
+    position: relative;
+}
+
+#est_topic {
+    float: left;
+    top: 10px;
+    color: red;
+    font-weight: bold;
+    font-size: 170%;
+    border: 2px solid gray;
+    border-radius: 5px;
+    height: 50px;
+    width: 100%;
+    position: relative;
+}
+
+.locked_table{
+    float: left;
+    top: 100px;
+    position: relative;
+}

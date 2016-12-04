@@ -1,17 +1,9 @@
 import numpy as np
-from dataloader import load_json_words
-
-N_TOPICS = 10
-
-
-def gen_documents(corpus_docs):
-    corpus_docs = dict([(int(x), y) for x, y in corpus_docs.iteritems()])
-    return corpus_docs
 
 
 class LDAGibbsSampler(object):
 
-    def __init__(self, docs, n_topics, alpha=0.1, beta=0.1):
+    def __init__(self, alpha=0.1, beta=0.1):
         # Initialize matrixes by none
         self.ndz = None
         self.nzw = None
@@ -23,14 +15,13 @@ class LDAGibbsSampler(object):
         self.beta = beta
 
         # Assign base
-        self.docs = docs
+        self.n_topic = 0
+        self.docs = None
         self.n_words = 0
         self.min_key = 0
-        self.w2idx = []
-        self.idx2words = []
+        self.w2idx = {}
+        self.idx2words = {}
         self.topics_per_doc = {}
-        self.n_topic = n_topics
-        self.docs = self.words2idx(self.docs, append=False)
 
     def words2idx(self, docs, append=True):
         # If mapping not defined
@@ -43,8 +34,8 @@ class LDAGibbsSampler(object):
             # Define mapping
             self.w2idx = dict([(y, x) for x, y in enumerate(word_set)])
             self.idx2words = dict([(x, y) for x, y in enumerate(word_set)])
-            self.n_words = len(self.idx2words)
 
+        self.n_words = len(self.idx2words)
         # change words to idx
         for doc_id, doc in docs.iteritems():
             print "Doc Converted to indexes: {}".format(doc_id)
@@ -130,7 +121,9 @@ class LDAGibbsSampler(object):
             print "Log likelihood: {}".format(self.measure_learning_phase(docs))
 
     # Learn LDA from corpus
-    def train(self, num_iteration=50):
+    def train(self, docs, num_iteration=50, n_topics=10):
+        self.n_topic = n_topics
+        self.docs = self.words2idx(docs, append=False)
         # Assign database
         self.min_key = min(self.docs.keys())
         print "Initializing matrices"
@@ -138,13 +131,57 @@ class LDAGibbsSampler(object):
         print "Starting Gibbs Sampler"
         self.gibbs_sampling(self.docs, num_iteration)
 
+    def save(self, path):
+        np.savez(path, nzw=self.nzw, nz=self.nz, w2idx=self.w2idx.items(),
+                 idx2words=self.idx2words.items(), n_topic=self.n_topic,
+                 alpha=self.alpha, beta=self.beta)
+
+    def load(self, path):
+        with np.load(path) as X:
+            self.nzw = X["nzw"]
+            self.nz = X["nz"]
+            # Convert dicts
+            w2idx = {}
+            tmp_w2idx = dict(X["w2idx"])
+            for key, value in tmp_w2idx.iteritems():
+                w2idx[key] = int(value)
+            idx2words = {}
+            tmp_idx2words = dict(X["idx2words"])
+            for key, value in tmp_idx2words.iteritems():
+                idx2words[int(key)] = value
+            self.w2idx = w2idx
+            self.idx2words = idx2words
+            self.n_topic = X["n_topic"]
+            self.alpha = X["alpha"]
+            self.beta = X["beta"]
+
     # Predict
-    def predict(self, document, num_iteration=50):
+    def predict(self, document, num_iteration=50, s_words=50, s_topics=3):
+        words = []
         doc_dict = {1: document}
         self.min_key = 1
         self.words2idx(doc_dict, append=True)
         self.initialize_matrixes(doc_dict)
         self.gibbs_sampling(doc_dict, num_iteration)
+        idx = np.argsort(-self.ndz[0])
+        topics = self.nzw[idx]
+        sorted_args = (-topics).argsort()
+        for topic_idx in xrange(self.n_topic):
+            word_list = []
+            for t_word in sorted_args[topic_idx]:
+                word_list.append(self.idx2words[t_word])
+            words.append(word_list[0: min(s_words, len(word_list))])
+        # Convert to local context
+        print ""
+        main_topics = words[:s_topics]
+        local_all_topics = []
+        for topic in main_topics:
+            local_topic = []
+            for word in topic:
+                if word in document:
+                    local_topic.append(word)
+            local_all_topics.append(local_topic)
+        return local_all_topics, words
 
     # Measure Learning phase
     def measure_learning_phase(self, docs):
@@ -170,12 +207,4 @@ class LDAGibbsSampler(object):
 
 
 if __name__ == '__main__':
-    art_words, mapp_titles = load_json_words("../data/", tolist=True)
-    art_words = gen_documents(art_words)
-    print "Documents Loaded"
-    lda = LDAGibbsSampler(art_words, N_TOPICS)
-    lda.train(num_iteration=30)
-    # sin_doc = gen_documents('../data/articles_5829.json')[5840]
-    # lda.predict(sin_doc)
-    doc_topic_words = lda.get_topic_words()
-    print doc_topic_words
+    pass

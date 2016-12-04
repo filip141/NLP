@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}">
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='css/template.css') }}" rel="stylesheet">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="{{ url_for('static', filename='js/jquery-2.2.4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <title>NLP Keyword</title>
+  </head>
+  <body>
+  <nav class="navbar navbar-inverse navbar-static-top">
+	<div class = "container">
+		<div class = "row">
+			<button class = "navbar-toggle" data-toggle = "collapse" data-target = ".navHeaderCollapse" >
+				<span class = "icon-bar"></span>
+				<span class = "icon-bar"></span>
+				<span class = "icon-bar"></span>
+			</button>
+			<div class = "collapse navbar-collapse navHeaderCollapse">
+              <ul class = "nav navbar-nav navbar-right">
+                  <li class = "active"><a href = "index.html">Strona Główna</a></li>
+                  <li><a href = "#">Projekt</a></li>
+                  <li class = "dropdown">
+                      <a href = "#" class = "dropdown-toggle" data-toggle = "dropdown" >Social Media</a>
+                      <ul class = "dropdown-menu">
+                          <li><a href="#">Facebook</a></li>
+                          <li><a href="#">Instagram</a></li>
+                      </ul>
+                  </li>
+                  <li class = "dropdown-2">
+                    <a href = "#" class = "dropdown-toggle" data-toggle = "dropdown" >Kontakt</a>
+                    <ul class = "dropdown-menu">
+                      <li><a>Kontakt<br>e-mail: filip141@gmail.com<br>Filip Bachura<i> Autor</i><br>tel: 667183853</a></li>
+                    </ul>
+                  </li>
+              </ul>
+  			</div>
+  		</div>
+  	    </div>
+  	</nav>
+    <div class="container">
+        <div class="form-group">
+            <div class="text_container">
+                <label for="document_insert">Insert your document:</label>
+                <textarea id="unlocked_textarea" class="form-control" rows="7" id="document_insert"></textarea>
+                <div class="button_group">
+                    <button id="purelda" type="button" class="btn btn-success">Pure LDA</button>
+                    <button id="gensimlda" type="button" class="btn btn-info">Gensim LDA</button>
+                    <button type="button" class="btn btn-warning">TextRank</button>
+                </div>
+                <div class="down_box">
+                    <div class="dropdown pull-right">
+                        <button class="btn btn-primary dropdown-toggle" type="button"
+                                data-toggle="dropdown">Mode Select
+                            <span class="caret"></span></button>
+                        <ul id="modesel" class="dropdown-menu">
+                            <li><a href="#">Keywords</a></li>
+                            <li><a href="#">Topic words</a></li>
+                        </ul>
+                    </div>
+                    <div class="locked_box">
+                        <label for="locked_id">Result:</label>
+                        <div class="col-md-8" id="locked_id"></div>
+                        <div class="col-md-8" id="est_topic"><p>Estimated Topic: </p></div>
+                    </div>
+                    <div class="locked_table">
+                        <label for="locked_table">Topic words:</label>
+                        <div class="table-responsive">
+                            <table id="topic_words" class="table">
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
